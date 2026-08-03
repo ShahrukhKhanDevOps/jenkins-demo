@@ -1,0 +1,55 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Source Code Available'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                dir('AngularDemo') {
+                    echo 'Installing Node Packages...'
+                    sh 'npm install'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('AngularDemo') {
+                    echo 'Building Angular Project...'
+                    sh 'npm run build'
+                }
+            }
+        }
+
+        stage('Archive') {
+            steps {
+                archiveArtifacts artifacts: 'AngularDemo/dist/**', fingerprint: true
+            }
+        }
+
+    }
+
+    post {
+
+        success {
+            echo 'Angular Build Successful'
+        }
+
+        failure {
+            echo 'Angular Build Failed'
+        }
+
+        always {
+            echo 'Pipeline Finished'
+        }
+
+    }
+
+}
