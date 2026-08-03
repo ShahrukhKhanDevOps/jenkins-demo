@@ -1,0 +1,61 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Source Code Available'
+            }
+        }
+
+        stage('Restore') {
+            steps {
+                dir('DotNetDemo') {
+                    echo 'Restoring Packages...'
+                    sh 'dotnet restore'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('DotNetDemo') {
+                    echo 'Building Project...'
+                    sh 'dotnet build --configuration Release'
+                }
+            }
+        }
+
+        stage('Publish') {
+            steps {
+                dir('DotNetDemo') {
+                    echo 'Publishing Project...'
+                    sh 'dotnet publish -c Release -o publish'
+                }
+            }
+        }
+
+        stage('Archive') {
+            steps {
+                archiveArtifacts artifacts: 'DotNetDemo/publish/**', fingerprint: true
+            }
+        }
+    }
+
+    post {
+
+        success {
+            echo 'DotNet Build Successful'
+        }
+
+        failure {
+            echo 'DotNet Build Failed'
+        }
+
+        always {
+            echo 'Pipeline Finished'
+        }
+    }
+}
